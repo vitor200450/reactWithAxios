@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import './App.css'
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
 
 interface Advice{
   id: number;
@@ -11,6 +11,9 @@ function App() {
 
   const [nome, setNome] = useState<String>();
   const [advice, setAdvice] = useState<String>();
+  
+  const [personagem, setPersonagem] = useState<String>();
+  const [nomePesquisa, setNomePesquisa] = useState<String>();
 
   const getData = useCallback( async()=> {
     await axios.get('https://api.adviceslip.com/advice')
@@ -23,8 +26,19 @@ function App() {
     })
   }, [])
 
+  const getSWData = useCallback( async() => {
+    await axios.get('https://swapi.py4e.com/api/people/1/')
+    .then((resp) => {
+      console.log(resp.data.name);
+      setPersonagem(resp.data);
+    })
+    .catch((error) => {
+      console.error(error);
+    })
+  }, [])
+
   useEffect(()=>{
-    getData();
+    getSWData();
   }, [])
 
   const defName = (nome: string) => {
@@ -33,12 +47,24 @@ function App() {
 
   return (
     <div>
-      <strong>Ola {nome}</strong>
+      <strong>Olá {personagem && personagem.name}!</strong>
+      <div>
+        <strong>Características:<br></br></strong>
 
-      <strong>{advice}</strong>
+        <div className='characteristics'>
+          <strong>Cor do cabelo: {personagem && personagem.hair_color}</strong>
+          <strong>Cor de pele: {personagem && personagem.skin_color}</strong>
+          <strong>Cor do olho: {personagem && personagem.eye_color}</strong>
+          <strong>Ano de nascimento: {personagem && personagem.birth_year}</strong>
+          <strong>Gênero: {personagem && personagem.gender}</strong> 
+        </div>
+        
+      </div>
       <button onClick={() => defName('Tomate')}>Tomate</button>
       <button onClick={() => defName('Batata')}>Batata</button>
       <button onClick={() => defName('Beterraba')}>Beterraba</button>
+
+
 
     </div>
   )
